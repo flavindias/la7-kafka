@@ -14,9 +14,9 @@ export class KafkaConnection {
     this.consumer = this.kafka.consumer({ groupId: `${appName}-group` });
   }
 
-  async subscribe(topics: string[]) {
+  async subscribe(topics: string[]): Promise<void> {
     try {
-      topics.map(async topic => {
+      topics.forEach(async topic => {
           await this.consumer.stop();
           await this.consumer.subscribe({ topic, fromBeginning: false });
       });
@@ -27,7 +27,7 @@ export class KafkaConnection {
     }
   }
 
-  async produce(topic: string, data: string) {
+  async produce(topic: string, data: string): Promise<void> {
     try {
       await this.producer.connect();
       const resp = await this.producer.send({
@@ -42,14 +42,14 @@ export class KafkaConnection {
       });
       if (resp) {
         console.log(resp, "data has been sent");
-        return { resp, topic, data };
+        // return { resp, topic, data };
       }
     } catch (error) {
       console.error(error);
     }
   }
 
-  async consume() {
+  async consume(): Promise<void> {
     try {
       await this.consumer.run({
         eachMessage: async ({ topic, partition, message }) => {
